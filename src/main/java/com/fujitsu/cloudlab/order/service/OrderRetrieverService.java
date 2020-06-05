@@ -23,9 +23,16 @@ public class OrderRetrieverService {
     if (orderData.isPresent()) {
       OrderData order = orderData.get();
       OrderResponse orderResponse =  gson.fromJson(order.getOrderData(), OrderResponse.class);
+	  if(orderResponse.getFormOfPayment().getPaymentMethod().getPaymentCard() != null) {
+		  String cardNumber = orderResponse.getFormOfPayment().getPaymentMethod().getPaymentCard().getCardNum();
+		  StringBuffer sb = new StringBuffer();;
+		  sb.append(cardNumber.substring(0, 3));
+		  sb.append(cardNumber.substring(13, 16));
+		  orderResponse.getFormOfPayment().getPaymentMethod().getPaymentCard().setCardNum(sb.toString());
+	  }
       if(order.getOrderStatus().equals(AppConstants.DELETED))
     	  orderResponse.setOrderDeletedUtcTs(order.getOrderDeletedUtcTs().toString());
-      System.out.println("==="+order.getOrderData());
+      
       return orderResponse;
     } else {
       throw new ApiException(AppConstants.ORD404, "Order not found", "Order not found in DB", null);
